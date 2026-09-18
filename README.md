@@ -12,7 +12,7 @@ python -m http.server 8000      # index.html 을 더블클릭하면 안 됩니�
 ## 올리기
 
 ```
-1. 이 저장소를 내 GitHub 으로  (Use this template)
+1. https://github.com/kym20b/gam-test → Use this template → 내 GitHub 으로
 2. vercel.com → Add New → Project → Import
 3. Framework Preset: Other → Deploy
 ```
