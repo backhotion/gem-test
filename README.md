@@ -24,9 +24,9 @@ python -m http.server 8000      # index.html 을 더블클릭하면 안 됩니�
 ```
    [내 노트북]                                   [인터넷]
 
-   데이터/fetch_all.py     공개 데이터 6곳에서 받기 (키·로그인 없음)
-        ↓  데이터/raw/  약 21MB   ← git 에 올라가지 않습니다
-   문항/build_topics.py    원본에서 문항 계산
+   tools/fetch_all.py      공개 데이터 6곳에서 받기 (키·로그인 없음)
+        ↓  data/raw/  약 19MB   ← git 에도 배포에도 올라가지 않습니다
+   tools/build_topics.py   원본에서 문항 계산
         ↓
    topics/*.json  약 40KB  ← 이것만 올라갑니다
 ```
@@ -44,6 +44,8 @@ python -m http.server 8000      # index.html 을 더블클릭하면 안 됩니�
 | `topics.json` | 주제 목록 · 등급 · 반응 문구 |
 | `topics/*.json` | ★ 주제별 5문항. 정답 · 근거 · 해설 · 한계 |
 | `api/comment.py` | Gemini 촌평. 서버가 필요한 유일한 자리 |
+| `tools/fetch_all.py` | 공개 데이터 내려받기 (배포 제외) |
+| `tools/build_topics.py` | 원본 → 문항 계산 (배포 제외) |
 
 ## 주제 10개
 
@@ -77,7 +79,7 @@ Vercel → Settings → Environment Variables
 
 | 바꾸고 싶은 것 | 어디 |
 |---|---|
-| 문항 · 정답 · 근거 · 해설 · 한계 | `문항/build_topics.py` → 다시 돌리면 `topics/*.json` 갱신 |
+| 문항 · 정답 · 근거 · 해설 · 한계 | `tools/build_topics.py` → 다시 돌리면 `topics/*.json` 갱신 |
 | 등급 이름, 반응 문구 | `topics.json` (`build_topics.py` 가 씁니다) |
 | 점수 계산식 | `app.js` 의 `scoreOne()` |
 | 색 · 여백 | `style.css` 맨 위의 `:root` |
@@ -92,7 +94,9 @@ Vercel → Settings → Environment Variables
 
 - **ERA5 재분석**의 서울 역대 최고기온은 37.6도지만, **기상청 관측 기록은 39.6도**입니다
 - World Bank의 '모든 나라' 목록에는 **유럽연합·고소득국 같은 집계치가 78개** 섞여 있습니다
-- 공휴일 API의 한국 목록에는 **2008년에 폐지된 제헌절**이 들어 있어, 그 주제는 뺐습니다
+- 공휴일 API의 2025년 한국 목록에는 제헌절이 공휴일로 들어 있었습니다. **2025년 기준으로는
+  틀린 값이지만, 2026년 5월 개정으로 제헌절은 다시 공휴일이 되었습니다** — 같은 값이
+  기준 시점에 따라 맞기도 틀리기도 합니다. 공휴일 데이터는 제도 변경에 민감해 주제에서 뺐습니다
 
 ## 주의
 
