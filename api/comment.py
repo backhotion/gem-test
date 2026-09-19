@@ -22,12 +22,18 @@ import urllib.error
 import urllib.request
 from http.server import BaseHTTPRequestHandler
 
-# AI Studio(aistudio.google.com)에서 지금 쓸 수 있는 모델 이름으로 맞춘다.
-# 모델 이름과 무료 한도는 자주 바뀐다 — 교안의 이름을 그대로 믿지 말 것.
-MODEL = "gemini-2.5-flash"
+# AI Studio(aistudio.google.com)에서 지금 쓸 수 있는 모델 이름 목록.
+# 환경변수 GEMINI_MODEL 로 원하는 모델을 지정할 수도 있다.
+PREFERRED_MODELS = [
+    os.environ.get("GEMINI_MODEL", "").strip(),
+    "gemini-1.5-flash",
+    "gemini-2.0-flash",
+    "gemini-2.5-flash",
+]
+MODELS = [m for m in PREFERRED_MODELS if m]
 ENDPOINT = ("https://generativelanguage.googleapis.com/v1beta/"
             "models/{model}:generateContent")
-TIMEOUT = 6
+TIMEOUT = 8
 
 PROMPT = """너는 직장 데이터 퀴즈 앱의 촌평 담당이다.
 
@@ -68,17 +74,30 @@ def _ask(score, grade, directions):
             "responseMimeType": "application/json",
         },
     }
-    req = urllib.request.Request(
-        ENDPOINT.format(model=MODEL),
-        data=json.dumps(body).encode("utf-8"),
-        headers={"Content-Type": "application/json", "x-goog-api-key": key},
-        method="POST")
-    with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
-        out = json.loads(r.read().decode("utf-8"))
-    text = out["candidates"][0]["content"]["parts"][0]["text"]
-    got = json.loads(text)
-    return {"comment": str(got.get("comment", ""))[:300],
-            "nickname": str(got.get("nickname", ""))[:20]}
+
+    for model_name in MODELS:
+        try:
+            req = urllib.request.Request(
+                ENDPOINT.format(model=model_name),
+                data=json.dumps(body).encode("utf-8"),
+                headers={"Content-Type": "application/json", "x-goog-api-key": key},
+                method="POST")
+            with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
+                out = json.loads(r.read().decode("utf-8"))
+            text = out["candidates"][0]["content"]["parts"][0]["text"]
+            got = json.loads(text)
+            return {"comment": str(got.get("comment", ""))[:300],
+                    "nickname": str(got.get("nickname", ""))[:20]}
+        except urllib.error.HTTPError as e:
+            # 404(모델 미지원) 등 발생 시 다음 모델로 폴백
+            if e.code == 404:
+                continue
+            return None
+        except Exception:
+            return None
+
+    return None
+
 
 
 class handler(BaseHTTPRequestHandler):

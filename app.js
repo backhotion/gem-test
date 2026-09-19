@@ -268,7 +268,7 @@ async function askComment(total, grade) {
   const directions = PACK.questions.map((q, i) => directionOf(q, answers[i]));
   try {
     const ctl = new AbortController();
-    const timer = setTimeout(() => ctl.abort(), 3000);
+    const timer = setTimeout(() => ctl.abort(), 7000);
     const r = await fetch("/api/comment", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
